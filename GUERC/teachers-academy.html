@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teachers Academy | GUERC</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
+        body { margin: 0; background: #020617; font-family: 'Inter', sans-serif; color: white; transition: background-color 0.5s ease; min-height: 100vh; }
+        body.light-mode { background: #f8fafc; color: #0f172a; }
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; }
+        
+        .glass-panel { 
+            background: rgba(15, 23, 42, 0.6); 
+            backdrop-filter: blur(20px); 
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+            border-radius: 32px; 
+        }
+        
+        body.light-mode .glass-panel { 
+            background: rgba(255, 255, 255, 0.85); 
+            border: 1px solid rgba(0, 0, 0, 0.05); 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+        }
+
+        .training-card { transition: transform 0.3s ease; }
+        .training-card:hover { transform: translateY(-5px); }
+        
+        body.light-mode .training-card { background: white; border: 1px solid rgba(0,0,0,0.05); }
+        body.light-mode .text-slate-300, body.light-mode .text-slate-400 { color: #475569; }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <nav class="flex justify-between items-center p-10">
+        <a href="index.html" class="text-cyan-400 font-bold hover:text-cyan-500 transition flex items-center gap-2">
+            <i class="fa-solid fa-arrow-left"></i> Back to Home
+        </a>
+        <div class="flex items-center space-x-8 text-2xl">
+            <i id="themeToggle" class="fa-solid fa-moon cursor-pointer hover:text-cyan-400 transition"></i>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-8 py-12">
+        <div class="glass-panel p-12">
+            <h1 class="text-5xl font-bold mb-4 tracking-tight text-cyan-400">Teachers Academy</h1>
+            <p class="text-xl text-slate-400 mb-12">Empowering educators with global methodologies.</p>
+            
+            <div id="programsGrid" class="grid md:grid-cols-3 gap-8">
+                <div class="col-span-3 text-center py-20 opacity-50">Loading programs...</div>
+            </div>
+        </div>
+    </main>
+
+    <div id="detailsModal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4">
+        <div class="glass-panel p-10 max-w-2xl w-full relative">
+            <button onclick="closeModal('detailsModal')" class="absolute top-6 right-6 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            
+            <img id="modalImg" src="" alt="" class="w-full h-48 object-cover rounded-2xl mb-6 hidden">
+            
+            <h2 id="modalTitle" class="text-3xl font-bold text-cyan-400 mb-4"></h2>
+            <div id="modalLong" class="text-slate-300 leading-relaxed text-lg max-h-[40vh] overflow-y-auto pr-4"></div>
+        </div>
+    </div>
+
+    <div id="enrollModal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4">
+        <div class="glass-panel p-10 max-w-lg w-full relative">
+            <button onclick="closeModal('enrollModal')" class="absolute top-6 right-6 text-slate-400 hover:text-white transition"><i class="fa-solid fa-xmark text-2xl"></i></button>
+            <h2 class="text-3xl font-bold text-cyan-400 mb-2">Apply Now</h2>
+            <p class="text-slate-400 mb-8">Selected Program: <span id="displayProgName" class="text-white font-bold"></span></p>
+            
+            <form id="enrollForm" class="space-y-4">
+                <input type="hidden" id="selectedProgramName">
+                <input type="text" id="userName" placeholder="Full Name" required class="w-full bg-slate-800/50 p-3 rounded-xl border border-white/10 text-white outline-none focus:border-cyan-500">
+                <input type="email" id="userEmail" placeholder="Email Address" required class="w-full bg-slate-800/50 p-3 rounded-xl border border-white/10 text-white outline-none focus:border-cyan-500">
+                <input type="tel" id="userPhone" placeholder="Phone Number" required class="w-full bg-slate-800/50 p-3 rounded-xl border border-white/10 text-white outline-none focus:border-cyan-500">
+                <textarea id="userMsg" placeholder="Additional Notes" class="w-full bg-slate-800/50 p-3 rounded-xl h-24 border border-white/10 text-white outline-none focus:border-cyan-500"></textarea>
+                <button type="submit" class="w-full bg-cyan-500 text-slate-950 font-bold py-4 rounded-xl hover:bg-cyan-400 transition">Submit Application</button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, doc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3tnoCO0MwfSM-FH95cC52OyUHzaouC8E", 
+            authDomain: "guercllc.firebaseapp.com",
+            projectId: "guercllc",
+            storageBucket: "guercllc.firebasestorage.app",
+            messagingSenderId: "450126717624",
+            appId: "1:450126717624:web:4e152e748315b33cc68a4d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        let programsData = [];
+
+        // Real-time sync with Dynamic Admin Array
+        onSnapshot(doc(db, "content", "academy"), (doc) => {
+            if (doc.exists()) {
+                programsData = doc.data().programs || [];
+                const grid = document.getElementById('programsGrid');
+                grid.innerHTML = ""; 
+
+                programsData.forEach((prog, index) => {
+                    grid.innerHTML += `
+                        <div class="training-card bg-slate-900/40 p-8 rounded-3xl border border-white/5 flex flex-col h-full">
+                            <h3 class="text-2xl font-bold mb-4 text-cyan-400">${prog.t}</h3>
+                            <p class="text-slate-300 mb-8 flex-grow">${prog.s}</p>
+                            <div class="flex gap-2">
+                                <button onclick="showDetails(${index})" class="flex-1 py-3 border border-cyan-500/30 rounded-xl text-sm hover:bg-cyan-500/10 transition">Learn More</button>
+                                <button onclick="openEnroll(${index})" class="flex-1 py-3 bg-cyan-500 text-slate-950 font-bold rounded-xl text-sm hover:bg-cyan-400 transition">Enroll Now</button>
+                            </div>
+                        </div>`;
+                });
+            }
+        });
+
+        // Modal Functions
+        window.showDetails = (index) => {
+            const prog = programsData[index];
+            const imgEl = document.getElementById('modalImg');
+            
+            document.getElementById('modalTitle').innerText = prog.t;
+            document.getElementById('modalLong').innerText = prog.l;
+            
+            // Handle the Image display
+            if (prog.img && prog.img.trim() !== "") {
+                imgEl.src = prog.img;
+                imgEl.classList.remove('hidden');
+            } else {
+                imgEl.classList.add('hidden');
+            }
+            
+            document.getElementById('detailsModal').classList.remove('hidden');
+        };
+
+        window.openEnroll = (index) => {
+            const name = programsData[index].t;
+            document.getElementById('displayProgName').innerText = name;
+            document.getElementById('selectedProgramName').value = name;
+            document.getElementById('enrollModal').classList.remove('hidden');
+        };
+
+        window.closeModal = (id) => document.getElementById(id).classList.add('hidden');
+
+        // Form Submission
+        document.getElementById('enrollForm').onsubmit = async (e) => {
+            e.preventDefault();
+            try {
+                await addDoc(collection(db, "applications"), {
+                    program: document.getElementById('selectedProgramName').value,
+                    name: document.getElementById('userName').value,
+                    email: document.getElementById('userEmail').value,
+                    phone: document.getElementById('userPhone').value,
+                    message: document.getElementById('userMsg').value,
+                    date: new Date().toISOString()
+                });
+                alert("Application Sent! Our team will contact you shortly.");
+                closeModal('enrollModal');
+                e.target.reset();
+            } catch (err) { alert("Error: " + err.message); }
+        };
+
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        if (localStorage.getItem('theme') === 'light') document.body.classList.add('light-mode');
+        themeToggle.onclick = () => {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        };
+    </script>
+</body>
+</html>

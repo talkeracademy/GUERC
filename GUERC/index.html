@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Uzbek Education | Research Center</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700&display=swap');
+        
+        body { 
+            margin: 0; 
+            background: #020617; /* Default dark */
+            font-family: 'Inter', sans-serif; 
+            color: white;
+            overflow: hidden;
+            height: 100vh;
+            transition: background-color 0.5s ease, color 0.5s ease;
+        }
+
+        body.light-mode {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
+        /* Adjust glass panels for light mode */
+        body.light-mode .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            border: 1px solid rgba(15, 23, 42, 0.1);
+            color: #1e293b;
+        }
+
+        body.light-mode .nav-item {
+            color: #1e293b;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 32px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
+            color: white;
+        }
+
+        .nav-item:hover {
+            transform: scale(1.1);
+            color: #22d3ee;
+        }
+
+        .nav-item i {
+            font-size: 2.8rem;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.3));
+        }
+
+        .nav-item span {
+            font-size: 0.875rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="bg-canvas"></canvas>
+
+    <nav class="flex justify-between items-center p-10">
+    <div>
+        <h1 class="text-4xl font-bold tracking-tight">Global Uzbek education</h1>
+        <p class="text-[11px] tracking-[0.5em] uppercase opacity-50 mt-1">Research Center</p>
+    </div>
+    <div class="flex items-center space-x-8 text-2xl">
+        <img src="https://flagcdn.com/w40/uz.png" class="w-8 rounded shadow-2xl" alt="UZ">
+        <i id="themeToggle" class="fa-solid fa-moon cursor-pointer hover:text-cyan-400 transition"></i>
+        <i id="userBtn" class="fa-regular fa-user cursor-pointer hover:text-cyan-400 transition"></i>
+        <button id="memberLogoutBtn" class="hidden text-xs bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30 hover:bg-red-500/40 transition">Logout</button>
+        <i class="fa-solid fa-magnifying-glass cursor-pointer hover:text-cyan-400 transition"></i>
+    </div>
+</nav>
+
+    <main class="flex items-center justify-center min-h-[65vh] px-8">
+        <div class="glass-panel grid grid-cols-2 md:grid-cols-4 gap-y-16 gap-x-12 p-20 max-w-6xl w-full">
+            
+            <button id="openAboutBtn" class="nav-item">
+                <i class="fa-solid fa-users-rays"></i>
+                <span>About Us</span>
+            </button>
+
+            <a href="teachers-academy.html" class="nav-item">
+                <i class="fa-solid fa-school-flag"></i>
+                <span>Teachers academy</span>
+            </a>
+
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-map-location-dot"></i>
+                <span>International Camps</span>
+            </a>
+
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-globe"></i>
+                <span>International olimpics</span>
+            </a>
+
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>Scholarships</span>
+            </a>
+
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-handshake-simple"></i>
+                <span>Partners</span>
+            </a>
+
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-file-lines"></i>
+                <span>Articles and reports</span>
+            </a>
+
+            <a href="#" class="nav-item">
+                <i class="fa-solid fa-images"></i>
+                <span>Galery</span>
+            </a>
+
+        </div>
+    </main>
+
+    <footer class="fixed bottom-12 w-full flex justify-center space-x-12 text-2xl opacity-40">
+        <i class="fa-brands fa-instagram cursor-pointer hover:opacity-100 hover:text-cyan-400 transition"></i>
+        <i class="fa-brands fa-facebook cursor-pointer hover:opacity-100 hover:text-cyan-400 transition"></i>
+        <i class="fa-brands fa-telegram cursor-pointer hover:opacity-100 hover:text-cyan-400 transition"></i>
+    </footer>
+
+    <script>
+        const canvas = document.getElementById('bg-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function init() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            particles = [];
+            for (let i = 0; i < 90; i++) {
+                particles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    size: Math.random() * 1.5 + 1
+                });
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach((p, i) => {
+                p.x += p.vx;
+                p.y += p.vy;
+
+                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(34, 211, 238, 0.4)';
+                ctx.fill();
+
+                for (let j = i + 1; j < particles.length; j++) {
+                    const p2 = particles[j];
+                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+                    if (dist < 180) {
+                        ctx.beginPath();
+                        ctx.moveTo(p.x, p.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `rgba(34, 211, 238, ${0.15 - dist/180})`;
+                        ctx.lineWidth = 0.8;
+                        ctx.stroke();
+                    }
+                }
+            });
+            requestAnimationFrame(animate);
+        }
+
+        window.addEventListener('resize', init);
+        init();
+        animate();
+    </script>
+<div id="authModal" class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-md">
+        <div class="glass-panel p-10 w-full max-w-md">
+            <h2 id="modalTitle" class="text-2xl font-bold mb-6 text-center">Member Access</h2>
+            <div class="space-y-4">
+                <input type="email" id="authEmail" placeholder="Email" class="w-full bg-slate-800/50 rounded-xl p-3 border border-white/10 text-white">
+                <input type="password" id="authPassword" placeholder="Password" class="w-full bg-slate-800/50 rounded-xl p-3 border border-white/10 text-white">
+                <button id="authSubmitBtn" class="w-full bg-cyan-500 text-slate-950 py-3 rounded-xl font-bold hover:bg-cyan-400 transition">Sign In</button>
+                <p class="text-center text-xs text-slate-400">
+                    Don't have an account? <span id="toggleAuth" class="text-cyan-400 cursor-pointer">Sign Up instead</span>
+                </p>
+            </div>
+            <button onclick="document.getElementById('authModal').classList.add('hidden')" class="w-full mt-4 text-slate-500 hover:text-white text-sm">Cancel</button>
+        </div>
+    </div>
+
+    <script type="module">
+        // 1. Added onAuthStateChanged and signOut to imports
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyB3tnoCO0MwfSM-FH95cC52OyUHzaouC8E", 
+            authDomain: "guercllc.firebaseapp.com",
+            projectId: "guercllc",
+            storageBucket: "guercllc.firebasestorage.app",
+            messagingSenderId: "450126717624",
+            appId: "1:450126717624:web:4e152e748315b33cc68a4d",
+            measurementId: "G-9XT67W4NM8"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        let isLoggingIn = true;
+
+        // Elements
+        const authModal = document.getElementById('authModal');
+        const authSubmitBtn = document.getElementById('authSubmitBtn');
+        const toggleAuth = document.getElementById('toggleAuth');
+        const userBtn = document.getElementById('userBtn');
+        const memberLogoutBtn = document.getElementById('memberLogoutBtn');
+
+        // Toggle logic
+        toggleAuth.onclick = () => {
+            isLoggingIn = !isLoggingIn;
+            document.getElementById('modalTitle').innerText = isLoggingIn ? "Member Access" : "Create Account";
+            authSubmitBtn.innerText = isLoggingIn ? "Sign In" : "Register";
+            toggleAuth.innerText = isLoggingIn ? "Sign Up instead" : "Sign In instead";
+        };
+
+        // Open Modal
+        userBtn.onclick = () => authModal.classList.remove('hidden');
+
+        // 2. Added Logout Functionality
+        memberLogoutBtn.onclick = () => signOut(auth);
+
+        // 3. Added Auth Observer (Handles UI changes and removes alerts)
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // When logged in: hide user icon, show logout button, close modal
+                userBtn.classList.add('hidden');
+                memberLogoutBtn.classList.remove('hidden');
+                authModal.classList.add('hidden');
+            } else {
+                // When logged out: show user icon, hide logout button
+                userBtn.classList.remove('hidden');
+                memberLogoutBtn.classList.add('hidden');
+            }
+        });
+
+        // 4. Cleaned up Submit Logic (No more success alerts!)
+        authSubmitBtn.onclick = async () => {
+            const email = document.getElementById('authEmail').value;
+            const pass = document.getElementById('authPassword').value;
+            try {
+                if (isLoggingIn) {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                } else {
+                    await createUserWithEmailAndPassword(auth, email, pass);
+                }
+            } catch (error) {
+                alert(error.message);
+            }
+        };
+    </script>
+    <div id="aboutModal" class="hidden fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-xl p-4">
+    <div class="glass-panel p-10 max-w-2xl w-full relative overflow-y-auto max-h-[90vh]">
+        <button id="closeAboutBtn" class="absolute top-6 right-6 text-slate-400 hover:text-white transition">
+            <i class="fa-solid fa-xmark text-2xl"></i>
+        </button>
+
+        <h2 class="text-4xl font-bold mb-6 text-cyan-400">About Global Uzbek Education</h2>
+        
+        <div class="space-y-6 text-slate-300 leading-relaxed">
+            <p>
+                The <span class="text-white font-bold">Global Uzbek Education Research Center</span> is dedicated to advancing the educational landscape of Uzbekistan through rigorous data analysis and international collaboration.
+            </p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/5">
+                    <h3 class="text-cyan-400 font-bold mb-2"><i class="fas fa-bullseye mr-2"></i> Our Mission</h3>
+                    <p class="text-sm">To bridge the gap between local talent and global educational standards.</p>
+                </div>
+                <div class="bg-slate-900/50 p-4 rounded-2xl border border-white/5">
+                    <h3 class="text-cyan-400 font-bold mb-2"><i class="fas fa-eye mr-2"></i> Our Vision</h3>
+                    <p class="text-sm">A future where Uzbek students lead in global innovation and research.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const aboutModal = document.getElementById('aboutModal');
+    const openAboutBtn = document.getElementById('openAboutBtn');
+    const closeAboutBtn = document.getElementById('closeAboutBtn');
+
+    openAboutBtn.onclick = () => aboutModal.classList.remove('hidden');
+    closeAboutBtn.onclick = () => aboutModal.classList.add('hidden');
+
+    // Close if they click the dark background
+    window.addEventListener('click', (event) => {
+        if (event.target == aboutModal) {
+            aboutModal.classList.add('hidden');
+        }
+    });
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    // Check for saved theme
+    if (localStorage.getItem('theme') === 'light') {
+        body.classList.add('light-mode');
+        themeToggle.classList.replace('fa-moon', 'fa-sun');
+    }
+
+    themeToggle.onclick = () => {
+        body.classList.toggle('light-mode');
+        const isLight = body.classList.contains('light-mode');
+        
+        // Switch icon
+        themeToggle.classList.toggle('fa-moon', !isLight);
+        themeToggle.classList.toggle('fa-sun', isLight);
+        
+        // Save preference
+        localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    };
+</script>
+
+</body>
+</html>
